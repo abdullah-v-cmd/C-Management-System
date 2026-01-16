@@ -1,0 +1,1533 @@
+#include<iostream>
+#include<string>
+#include<vector>
+#include<iomanip>
+#include <fstream>
+#include <sstream>
+
+using namespace std;
+class Product{
+	public:
+		int id;
+		string name;
+		float price;
+		int stock;
+		Product(){
+			id=0;
+			name="";
+			price=0;
+			stock=0;
+			
+		}
+		Product(int id,string name,float price,int stock){
+			this->id=id;
+			this->name=name;
+			this->price=price;
+			this->stock=stock;
+			
+		}	
+};
+
+class bst{
+public:
+	Product data;
+	bst*left;
+	bst*right;
+	bst(Product p){
+		data=p;
+		left=nullptr;
+		right=nullptr;
+		
+	}
+	
+
+	
+bst*insert(bst*&root, Product p){
+	if(root==nullptr){
+		return new bst(p);
+	}
+	if(p.id<root->data.id){
+		root->left=insert(root->left,p);
+	}
+	else if(p.id>root->data.id){
+		root->right=insert(root->right,p);
+	}
+	  else {
+            cout << "Product ID already exists!" << endl;
+        }
+
+        return root;
+}
+    void insertProduct(bst*&root,Product p) {
+    	
+        root = insert(root, p);
+        cout << "Product Inserted!" << endl;
+    }
+    
+    bst* search(bst*root,int id){
+    	
+    	if(root==nullptr){
+   
+    		return nullptr;
+		}
+		if(root->data.id==id){
+			return root;
+		}
+		if(id<root->data.id){
+			return search(root->left,id);
+			}else{
+			return search(root->right,id);
+			}
+		}
+		  void deleteBST(bst* node) {
+        if (!node) return;
+        deleteBST(node->left);
+        deleteBST(node->right);
+        delete node;
+    }
+	
+	void SearchProduct(bst*root,int id){
+		 bst* result = search(root,id);
+
+    if (result == NULL) {
+        cout << "Product Not Found!" << endl;
+    } else {
+        cout << "\nProduct Found!\n";
+        cout << "ID: " << result->data.id << endl;
+        cout << "Name: " << result->data.name << endl;
+        cout << "Price: " << result->data.price << endl;
+        cout << "Stock: " << result->data.stock << endl;
+    }
+}
+void updateProduct(bst*root,int id) {
+    bst*result=search(root,id);
+    if(result == NULL) {
+        cout << "Product Not Found!"<< endl;
+        return;
+    }
+    cout << "\nProduct Found! You can update it.\n";
+    cout <<"Enter New Name: ";
+    cin.ignore();    
+    getline(cin, result->data.name);
+    cout << "Enter New Price: ";
+    cin >> result->data.price;
+    cout << "Enter New Stock: ";
+    cin >> result->data.stock;
+    cout << "\nProduct Updated Successfully!\n";
+}
+bst* min(bst*root){
+	while(root->left!=nullptr){
+		root=root->left;
+	}
+	return root;
+}
+bst* del(bst*root,int id){
+	if(root==nullptr){
+		cout<<"The Inventory Is Empty"<<endl;
+		return nullptr;
+	}
+	if(id<root->data.id){
+		root->left=del(root->left,id);
+	}
+	else if(id>root->data.id){
+		root->right=del(root->right,id);
+	}
+	else{
+		if(root->right==nullptr&&root->left==nullptr){
+			delete root;
+			return nullptr;
+		}
+		else if(root->right==nullptr){
+			bst*temp=root->left;
+			delete root;
+			return temp;
+			}
+		else if(root->left==nullptr){
+			bst*temp=root->right;
+			delete root;
+			return temp;
+		}
+		else{
+			bst*temp=min(root->right);
+			root->data=temp->data;
+			root->right=del(root->right,temp->data.id);
+		}
+		
+	}
+	return root;
+}
+
+void deleteProduct(bst*&root,int id) {
+    cout << "\nAttempting to delete Product ID: " << id << endl;
+    root = del(root, id);
+    cout << "✅ Product Deleted Successfully (if it existed)\n";
+}
+
+
+void PurchaseProduct(bst*root,int id,int quantity){
+
+	bst*temp=search(root,id);
+	 if(temp == nullptr) {
+        cout << "Product Not Found!"<< endl;
+        return;
+    }
+	if(temp!=nullptr){
+		if(temp->data.stock<quantity){
+			cout<<"\nNot Enough Stock"<<endl;
+			return;
+		}
+		else{
+			temp->data.stock-=quantity;
+			 cout << "\nPurchase Successful!";
+            cout << "\nProduct: " << temp->data.name;
+            cout << "\nQuantity: " << quantity;
+            cout << "\nRemaining Stock: " << temp->data.stock << endl;
+
+            return;
+		}
+		
+	}
+}
+void lowstock(bst*root){
+	
+if(root==nullptr)return;
+    lowstock(root->left);
+    if(root->data.stock<5)
+        cout<<left<<setw(5)<<root->data.id
+            <<setw(15)<<root->data.name
+            <<setw(10)<<root->data.price
+            <<setw(7)<<root->data.stock<<endl;
+    lowstock(root->right);
+}
+
+
+void showLowStock(bst*root) {
+    cout<<left<<setw(5)<<"ID"<<setw(15)<<"Name"<<setw(10)<<"Price"<<setw(7)<<"Stock"<<endl;
+    cout<<"---------------------------------\n";
+    lowstock(root);
+}
+void showProducts(bst*r){
+if(r==nullptr)return;
+    showProducts(r->left);
+    cout<<left<<setw(5)<<r->data.id
+        <<setw(20)<<r->data.name
+        <<setw(10)<<r->data.price
+        <<setw(7)<<r->data.stock<<endl;
+    showProducts(r->right);
+	
+}
+
+};
+
+
+
+struct category{
+	string catname;
+	category*next;
+	bst*root;
+	category(string name){
+		next=nullptr;
+		root=nullptr;
+		catname=name;
+	}
+	
+	
+	
+	
+};
+struct CartItem {
+    int pid;
+    string pname;
+    int quantity;
+    float price;  
+};
+
+struct Transaction {
+    int pid;
+    string pname;
+    int quantity;
+    float totalAmount;
+};
+struct user{
+	string name;
+	vector<CartItem> cart; 
+	
+};
+
+struct Complaint {
+    string username;
+    string message;
+    bool resolved;
+};
+struct Preorder {
+    string username;
+    string productName;
+    int quantity;
+    bool fulfilled;
+    int productId;
+};
+
+
+struct branch{
+	branch*next;
+	string bname;
+	 vector<Transaction> transactions;   
+    vector<user>use;
+	category*cahead;
+	 vector<Complaint> complaints;
+	category*catail;
+	vector<Preorder> preorders;
+	branch(string n){
+		next=nullptr;
+		bname=n;
+		cahead=nullptr;
+		catail=nullptr;
+	}
+	
+	
+};
+class store{
+	public:
+		branch*head;
+		branch*tail;
+		store(){
+			head=nullptr;
+			tail=nullptr;
+		}
+		void addbranch(string n){
+			   branch* existing = findbranch(n);
+			 if(existing) {
+        cout << "Branch '" << n << "' already exists!\n";
+        return;
+    }
+			branch*ptr=new branch(n);
+			if(head==nullptr){
+				head=ptr;
+				tail=ptr;
+				ptr->next=nullptr;
+			return;
+			}
+			tail->next=ptr;
+			tail=ptr;
+		}
+	branch* findbranch(string n){
+    branch* temp=head;
+    while(temp){
+        if(temp->bname==n){
+            return temp;
+        }
+        temp=temp->next;
+    }
+    return nullptr;
+}
+	void updatebranch(string n){
+		if(head==nullptr){
+			cout<<"Branch is not available"<<endl;
+			return;
+		}
+		branch*result=findbranch(n);
+		
+		if(result!=nullptr){
+			string nam;
+		cout<<"Enter Branch New Name: "<<endl;
+		cin>>nam;
+			result->bname=nam;
+			return;
+		}
+	cout<<"Branch Not Found"<<endl;
+	}
+	bool searchbranch(string bn){
+		branch*temp=head;
+		if(temp==nullptr){
+			cout<<"No Branch"<<endl;
+		}
+		while(temp!=nullptr){
+			if(temp->bname==bn){
+				cout << "\n=== Branch Found ===\n";
+            cout << "Branch Name: " << temp->bname << endl;
+            cout << "Categories:\n";
+            category*c=temp->cahead;
+            if (c == nullptr) cout << "  No categories\n";
+            while(c!=nullptr){
+            	  cout << "  - " << c->catname << endl;
+                c = c->next;
+		 }
+			return true;
+			}
+			temp=temp->next;
+		}
+		 cout << "Branch Not Found!\n";
+    return false;
+	}
+	void transferProduct(store &s, const string &srcBranchName, const string &destBranchName,
+                     const string &categoryName, int productId, int quantity)
+{
+    if (quantity <= 0)
+    {
+        cout << "Quantity must be positive.\n";
+        return;
+    }
+
+    branch* src = s.findbranch(srcBranchName);
+    branch* dest = s.findbranch(destBranchName);
+
+    if (!src)
+    {
+        cout << "Source branch not found.\n";
+        return;
+    }
+
+    if (!dest)
+    {
+        cout << "Destination branch not found.\n";
+        return;
+    }
+
+    category* srcCat = src->cahead;
+    while (srcCat != nullptr && srcCat->catname != categoryName)
+    {
+        srcCat = srcCat->next;
+    }
+
+    if (srcCat == nullptr)
+    {
+        cout << "Category not found in source branch.\n";
+        return;
+    }
+
+    bst* prod = srcCat->root->search(srcCat->root, productId);
+
+    if (prod == nullptr)
+    {
+        cout << "Product not found in source branch.\n";
+        return;
+    }
+
+    if (prod->data.stock < quantity)
+    {
+        cout << "Not enough stock in source branch. Available: " << prod->data.stock << "\n";
+        return;
+    }
+
+    prod->data.stock = prod->data.stock - quantity;
+
+    category* destCat = dest->cahead;
+    while (destCat != nullptr && destCat->catname != categoryName)
+    {
+        destCat = destCat->next;
+    }
+
+    if (destCat == nullptr)
+    {
+        destCat = new category(categoryName);
+
+        if (dest->cahead == nullptr)
+        {
+            dest->cahead = destCat;
+            dest->catail = destCat;
+        }
+        else
+        {
+            dest->catail->next = destCat;
+            dest->catail = destCat;
+        }
+    }
+
+    bst* destProd = nullptr;
+
+    if (destCat->root != nullptr)
+    {
+        destProd = destCat->root->search(destCat->root, productId);
+    }
+
+    if (destProd != nullptr)
+    {
+        destProd->data.stock = destProd->data.stock + quantity;
+    }
+    else
+    {
+        Product p = prod->data;
+        p.stock = quantity;
+
+        if (destCat->root == nullptr)
+        {
+            destCat->root = new bst(p);
+        }
+        else
+        {
+            destCat->root->insertProduct(destCat->root, p);
+        }
+    }
+
+    cout << "Transferred " << quantity << " of " << prod->data.name
+         << " from " << srcBranchName << " to " << destBranchName << ".\n";
+}
+
+	
+	void delbranch(string n){
+		if(head==nullptr){
+			cout<<"Branch is not available"<<endl;
+		}
+			if(head->next->bname==n){
+		branch*temp=head;
+		head=head->next;
+		delete temp;
+		if(head==nullptr){
+			tail=nullptr;
+		}
+		return;
+	}
+	branch*temp2=nullptr;
+	branch*temp=head;
+	while(temp->next!=nullptr){
+		if(temp->bname==n){
+			temp2=temp->next;
+			temp->next=temp2->next;
+			if(temp->next==nullptr){
+				tail=temp;
+			}
+			delete temp2;
+		}
+		temp=temp->next;
+	}
+		
+	}
+	void addcatbran(string bn,string cn ){
+		if(head==nullptr){
+			cout<<"Add branch first";
+			return;
+		}
+		branch*temp=head;
+		while(temp!=nullptr){
+		
+			if(temp->bname==bn){
+				category* c = temp->cahead;
+				  while (c != nullptr) {
+                if (c->catname == cn) {
+                    cout << "Category '" << cn << "' already exists in branch '" << bn << "'.\n";
+                    return;
+                }
+                c = c->next;
+            }
+
+				category*cat=new category(cn);
+				if(temp->cahead==nullptr){
+					temp->cahead=cat;
+					temp->catail=cat;
+					return;
+				}
+				temp->catail->next=cat;
+				temp->catail=cat;
+				return;
+			}
+			temp=temp->next;
+		}
+		
+	}
+void addptoc(string bna, string cate){
+    branch* temp = head;
+    while(temp != nullptr){
+        if(temp->bname == bna){
+            category* cath = temp->cahead;
+            while(cath != nullptr){
+                if(cath->catname == cate){
+                    int id;
+                    string name;
+                    float price;
+                    int stock;
+                    while(true){
+                        cout << "Enter Product ID: ";
+                        cin >> id;
+                        bool existsInBranch = false;
+                        category* check = temp->cahead;
+                        while(check){
+                            if(check->root && check->root->search(check->root, id)){
+                                existsInBranch=true;
+                                break;
+                            }
+                            check = check->next;
+                        }
+                        if(existsInBranch){
+                            cout << "Product ID already exists in this branch. Enter again.\n";
+                            continue;
+                        }
+
+                        cout<<"Enter Product Name: ";
+                        cin>>ws; 
+                        getline(cin, name);
+                        cout<<"Enter Product Price: ";
+                        cin>>price;
+                        cout<<"Enter Product Stock: ";
+                        cin>>stock;
+
+                        Product p(id,name,price,stock);
+
+                        if(cath->root == nullptr){
+                            cath->root = new bst(p);
+                        } else {
+                            cath->root->insertProduct(cath->root, p);
+                        }
+                        cout<<"Product Inserted!\n";
+                        break;
+                    }
+                    return;
+                }
+                cath=cath->next;
+            }
+            cout<<"Category not found in branch!\n";
+            return;
+        }
+        temp=temp->next;
+    }
+    cout <<"Branch not found!\n";
+}
+
+	void delbranchwithcat(string bna) {
+    if (head==nullptr) {
+        cout<<"Branch not Available"<<endl;
+        return;
+    }
+
+    branch* temp=head;
+    if (head->bname==bna) {
+        category* c=head->cahead;
+        while (c!=nullptr) {
+            if (c->root){
+                c->root->deleteBST(c->root);
+                c->root=nullptr;
+            }
+            category*nextCat=c->next; 
+            delete c;
+            c=nextCat;
+        }
+        head=head->next; 
+        delete temp;       
+        cout<<"Branch '"<<bna<<"'and its categories/products deleted.\n";
+        return;
+    }
+    while (temp->next!=nullptr) {
+        if (temp->next->bname==bna) {
+            category*c=temp->next->cahead;
+            while (c!=nullptr) {
+                if (c->root!=nullptr)
+                    c->root->deleteBST(c->root);
+
+                category*nextCat=c->next;
+                delete c;
+                c=nextCat;
+            }
+            branch*temp2=temp->next;
+            temp->next=temp2->next;
+            delete temp2;
+
+            cout<<"Branch"<< bna<<"and its categories/products deleted.\n";
+            return;
+        }
+        temp=temp->next;
+    }
+    cout<<"Branch not found.\n";
+}
+user*us(branch*b,string &nam){
+	for(int i=0;i<b->use.size();i++){
+		if(b->use[i].name==nam){
+			return &b->use[i];
+		}
+	}
+		b->use.push_back({nam, {}});
+    return &b->use.back();
+}
+	void addtocart(string bnam,string username, string cat,int id,int q){
+		branch*temp=findbranch(bnam);
+		if (!temp) {
+    cout << "Branch not found\n";
+    return;
+}
+category* cath = temp->cahead;
+if (!cath) {
+    cout << "Category not found\n";
+    return;
+}
+		user*use=us(temp,username);
+		while(temp!=nullptr){
+			if(temp->bname==bnam){
+				
+				category*cath=temp->cahead;category*catt=temp->catail;
+				while(cath!=nullptr){
+				if(cath->catname==cat){	
+				bst*node=cath->root->search(cath->root,id);
+				if(node==nullptr){
+					cout<<"Product not found in this category"<<endl;
+					return;
+				}
+				 if(q <= 0) {
+                        cout << "Quantity must be positive\n";
+                        return;
+                    }
+                    if(node->data.stock < q) {
+    cout << "Not enough stock. Available: " << node->data.stock << "\n";
+    if(node->data.stock == 0) {
+        char pre;
+        cout << "Product is out of stock. Do you want to preorder? (y/n): ";
+        cin >> pre;
+        if(pre == 'y' || pre == 'Y') {
+            Preorder po;
+            po.username = username;
+            po.productName = node->data.name;
+            po.productId = node->data.id;
+            po.quantity = q;
+            po.fulfilled = false;
+            temp->preorders.push_back(po);
+            cout <<"Preorder added for " << po.productName << " x" << po.quantity << " by " << po.username << "\n";
+        }
+        return;
+    }
+    return;
+}
+
+                    
+				for(int i=0;i<use->cart.size();i++){
+					if(use->cart[i].pid==id){
+						use->cart[i].quantity+=q;
+						 cout << "Added " << q << " more of " <<use->cart[i].pname << " to cart.\n";
+                            return;
+					}
+				}
+				CartItem ci;
+				ci.pid=id;
+				ci.pname=node->data.name;
+				ci.quantity=q;
+				ci.price=node->data.price;
+				use->cart.push_back(ci);
+				cout << "Added to cart: " << ci.pname << " x" << q << "\n";
+                    return;
+				}
+				cath=cath->next;
+			}
+			}
+			temp=temp->next;
+		}
+	 cout << "Branch or Category not found for purchase.\n";
+}
+void viewstock(branch*b,string una){
+	user*us=nullptr;
+	for(int i=0;i<b->use.size();i++){
+		if(b->use[i].name==una){
+			us=&b->use[i];
+			break;
+		}
+	}
+	if(!us){
+			cout<<"user not found";
+			return;
+		}
+		if(us->cart.empty()){
+			cout<<"Cart is Empty";
+			return;
+		}
+		cout << "Cart for user " << una << " in branch " << b->bname << ":\n";
+		float total=0.0f;
+		for(int i=0;i<us->cart.size();i++){
+			 CartItem &it = us->cart[i];
+    cout << " " << it.pname << " (ID:" << it.pid << ") x" << it.quantity << " @ " << it.price << " = " << it.quantity * it.price << "\n";
+    total += it.quantity * it.price;
+		}
+	
+	
+	}
+	
+void checkout(store &s, const string &bname, const string &uname) {
+	    float total = 0.0f;
+		branch*b=s.findbranch(bname);
+		if(!b){
+			cout<<"branch not found";
+			return;
+			}
+			user*us=nullptr;
+			for(int i=0;i<b->use.size();i++){
+				if(b->use[i].name==uname){
+					us=&b->use[i];
+					break;
+				}
+				
+			}
+			   if (!us) { 
+        cout << "User not found.\n"; 
+        return; 
+    }
+    if (us->cart.empty()) { 
+        cout << "Your cart is empty. Nothing to checkout.\n"; 
+        return; 
+    }
+		cout << "\n===== YOUR CART =====\n";
+    for(int i=0;i<us->cart.size();i++){
+    CartItem &it = us->cart[i];
+    cout << " " << it.pname << " (ID:" << it.pid << ") x" << it.quantity 
+         << " @ " << it.price << " = " << it.quantity * it.price << "\n";
+    total += it.quantity * it.price;
+}
+
+		 char choice;
+    do {
+        cout << "\nCurrent Cart:\n";
+        for (int i = 0; i < us->cart.size(); i++) {
+            CartItem &it = us->cart[i];
+            cout << i + 1 << ". " << it.pname << " x" << it.quantity << " @ " << it.price 
+                 << " = " << it.quantity * it.price << "\n";
+        }
+
+        cout << "Do you want to remove any item from the cart? (y/n): ";
+        cin >> choice;
+        if (choice == 'y' || choice == 'Y') {
+            int idx;
+            cout << "Enter the item number to remove: ";
+            cin >> idx;
+            if (idx >= 1 && idx <= us->cart.size()) {
+                cout << "Removed " << us->cart[idx-1].pname << " from cart.\n";
+                us->cart.erase(us->cart.begin() + idx - 1);
+            } else {
+                cout << "Invalid item number.\n";
+            }
+        }
+    } while ((choice == 'y' || choice == 'Y') && !us->cart.empty());
+
+    if (us->cart.empty()) {
+        cout << "No items left in cart. Checkout canceled.\n";
+        return;
+    }
+
+
+
+    
+    for (int i = 0; i < us->cart.size(); i++) {
+        CartItem &it = us->cart[i];
+        bst* found = nullptr;
+        category* c = b->cahead;
+        while (c) {
+            if(c->root) found = c->root->search(c->root, it.pid);
+			if(found)break;
+
+            c = c->next;
+        }
+
+        if (!found) {
+            cout << "Product " << it.pname << " no longer exists. Removing from cart.\n";
+            us->cart.erase(us->cart.begin() + i);
+            i--; 
+            continue;
+        }
+
+        if (found->data.stock == 0) {
+            cout << "Product " << it.pname << " is out of stock. Removing from cart.\n";
+            us->cart.erase(us->cart.begin() + i);
+            i--;
+            continue;
+        }
+
+        if (found->data.stock < it.quantity) {
+            cout << "Only " << found->data.stock << " of " << it.pname << " available. Adjusting quantity.\n";
+            it.quantity = found->data.stock;
+        }
+
+        found->data.stock -= it.quantity;
+        total += it.quantity * it.price;
+
+        Transaction t;
+        t.pid = it.pid;
+        t.pname = it.pname;
+        t.quantity = it.quantity;
+        t.totalAmount = it.quantity * it.price;
+        b->transactions.push_back(t);
+    }
+
+    if (us->cart.empty()) {
+        cout << "No items could be purchased.\n";
+        return;
+    }
+    
+    cout << "\n===== FINAL BILL =====\n";
+for (auto &it : us->cart) {
+    cout << it.pname << " x" << it.quantity 
+         << " @ " << it.price << " = " << it.quantity * it.price << "\n";
+}
+cout << "Total Amount Paid: " << total << "\n";
+
+us->cart.clear();
+cout << "Checkout complete for user " << uname << " | Total: " << total << "\n";
+
+		
+		
+		
+	}
+
+		
+	void searchbcp(string bn,string cn,int id){
+				branch*temp=head;
+		while(temp!=nullptr){
+			if(temp->bname==bn){
+				category*cath=temp->cahead;
+				category*catt=temp->catail;
+				while(cath!=nullptr){
+				if(cath->catname==cn){
+					cath->root->SearchProduct(cath->root,id);
+					
+				}
+				cath=cath->next;
+			}
+			}
+			temp=temp->next;
+		}
+	}
+	    void displayStore() {
+        branch* btemp = head;
+        while (btemp!=nullptr) {
+            cout << "Branch: " << btemp->bname << endl;
+            category* ctemp = btemp->cahead;
+            while (ctemp!=nullptr) {
+                cout << "  Category: " << ctemp->catname << endl;
+                if(ctemp->root){
+                ctemp->root->showProducts(ctemp->root);
+            }
+				ctemp = ctemp->next;
+                
+            }
+            btemp = btemp->next;
+        }
+    }
+    void showBranchTransactions(const string &bname) {
+    branch* b = findbranch(bname);
+    if (b==nullptr) {
+        cout << "Branch '" << bname << "' not found.\n";
+        return;
+    }
+
+    if (b->transactions.empty()) {
+        cout << "No transactions available for branch '" << bname << "'.\n";
+        return;
+    }
+
+    cout << "\n===== TRANSACTIONS FOR BRANCH: " << bname << " =====\n";
+    cout << "S.No | Product Name | Quantity | Total Amount\n";
+    cout << "--------------------------------------------\n";
+
+    for (int i = 0; i < b->transactions.size(); i++) {
+        Transaction &t = b->transactions[i];
+        cout << i + 1 << " | " << t.pname 
+             << " | " << t.quantity 
+             << " | " << t.totalAmount << "\n";
+    }
+    cout << "--------------------------------------------\n";
+}
+
+
+    void showLowStock() {
+        branch* btemp = head;
+        while (btemp) {
+            cout << "Branch: " << btemp->bname << endl;
+            category* ctemp = btemp->cahead;
+            while (ctemp) {
+                cout << "  Category: " << ctemp->catname << endl;
+                if(ctemp->root){
+                ctemp->root->showLowStock(ctemp->root);}
+                ctemp = ctemp->next;
+            }
+            btemp = btemp->next;
+        }
+    }
+	void submitComplaint(const string &bname, const string &username, const string &message) {
+    branch* b = findbranch(bname);
+    if(!b) {
+        cout << "Branch not found.\n";
+        return;
+    }
+    Complaint c;
+    c.username = username;
+    c.message = message;
+     c.resolved = false;
+    b->complaints.push_back(c);
+    cout << "Complaint submitted.\n";
+}
+
+void viewComplaints(const string &bname) {
+    branch* b = findbranch(bname);
+    if(!b) {
+        cout << "Branch not found.\n";
+        return;
+    }
+    if(b->complaints.empty()) {
+        cout << "No complaints for branch " << bname << ".\n";
+        return;
+    }
+   cout << "\n===== COMPLAINTS FOR BRANCH: " << bname << " =====\n";
+    cout << "S.No | User | Message | Status\n";
+    cout << "----------------------------------------\n";
+    for (int i = 0; i < b->complaints.size(); i++) {
+        Complaint &c = b->complaints[i];
+        cout << i+1 << " | " << c.username 
+             << " | " << c.message 
+             << " | " << (c.resolved ? "Resolved" : "Pending") << "\n";
+    }
+    cout << "----------------------------------------\n";
+}
+
+void resolveComplaint(const string &bname,int index) {
+    branch* b = findbranch(bname);
+    if(!b) {
+        cout << "Branch not found.\n";
+        return;
+    }
+    if(b->complaints.empty()) {
+        cout << "No complaints to resolve for branch " << bname << ".\n";
+        return;
+    }
+     if (index < 1 || index > b->complaints.size()) {
+        cout << "Invalid complaint number.\n";
+        return;
+    }
+
+    b->complaints[index-1].resolved = true;
+    cout << "Complaint #" << index << " resolved successfully!\n";
+
+         
+}
+void addPreorder(const string &bname, const string &username, const string &pname, int qty,int &pid) {
+    branch* b = findbranch(bname);
+    if(!b) {
+        cout << "Branch not found.\n";
+        return;
+    }
+    Preorder po;
+    po.username = username;
+    po.productName = pname;
+    po.quantity = qty;
+    po.fulfilled = false;
+    po.productId = pid;
+    b->preorders.push_back(po);
+    cout << "Preorder added for " << pname << " x" << qty << " by " << username << "\n";
+}
+void fulfillPreorders(branch* b) {
+    if (!b) {
+        cout << "Branch not found.\n";
+        return;
+    }
+
+    bool anyFulfilled = false;
+
+    for (int i = 0; i < b->preorders.size(); i++) {
+        Preorder &po = b->preorders[i];
+
+        if (po.fulfilled) continue;
+
+        bool productFound = false;
+        category* cath = b->cahead;
+
+        while (cath != nullptr) {
+            bst* node = cath->root->search(cath->root, po.productId);
+            if (node != nullptr && node->data.name == po.productName) {
+                productFound = true;
+
+                if (node->data.stock >= po.quantity) {
+                    node->data.stock -= po.quantity;
+                    po.fulfilled = true;
+                    cout << "Preorder fulfilled: " << po.productName 
+                         << " x" << po.quantity << " for " << po.username << endl;
+                    anyFulfilled = true;
+                } else {
+                    cout << "Not enough stock for " << po.productName 
+                         << ". Needed: " << po.quantity 
+                         << ", Available: " << node->data.stock << endl;
+
+                    char choice;
+                    cout << "Do you want to fulfill remaining available stock (" 
+                         << node->data.stock << ") and keep rest as preorder? (y/n): ";
+                    cin >> choice;
+                    if(choice == 'y' || choice == 'Y') {
+                        po.quantity -= node->data.stock;
+                        cout << "Partial fulfillment: " << node->data.name 
+                             << " x" << node->data.stock << " for " << po.username << endl;
+                        node->data.stock = 0;
+                        anyFulfilled = true;
+                    }
+                }
+                break;
+            }
+            cath = cath->next;
+        }
+
+        if (!productFound) {
+            cout << "Product " << po.productName << " not found in branch " << b->bname << endl;
+        }
+    }
+
+    if (!anyFulfilled) {
+        cout << "No preorders were fulfilled.\n";
+    }
+}
+
+
+void showPreorders(const string &bname) {
+    branch* b = findbranch(bname);
+    if(!b) {
+        cout << "Branch not found.\n";
+        return;
+    }
+    if(b->preorders.empty()) {
+        cout << "No preorders for branch " << bname << "\n";
+        return;
+    }
+    cout << "\n===== PREORDERS FOR BRANCH: " << bname << " =====\n";
+    cout << "S.No | Username | Product Name | Product ID | Quantity | Status\n";
+    cout << "---------------------------------------------------------------\n";
+    for(int i = 0; i < b->preorders.size(); i++) {
+        Preorder &p = b->preorders[i];
+        cout << i+1 << " | " << p.username 
+             << " | " << p.productName 
+             << " | " << (p.productId == -1 ? 0 : p.productId)
+             << " | " << p.quantity 
+             << " | " << (p.fulfilled ? "Fulfilled" : "Pending") << "\n";
+    }
+    cout << "---------------------------------------------------------------\n";
+}
+
+
+
+
+
+void saveToFile(const string &filename) {
+    ofstream out(filename);
+    if(!out) { cout << "Cannot open file for saving!\n"; return; }
+
+    branch* btemp = head;
+    while(btemp) {
+        out << "BRANCH|" << btemp->bname << "\n";
+
+        category* ctemp = btemp->cahead;
+        while(ctemp) {
+            out << "CATEGORY|" << ctemp->catname << "\n";
+
+            if(ctemp->root) {
+                saveBST(ctemp->root, out);
+            }
+
+            ctemp = ctemp->next;
+        }
+
+        
+        for(auto &t : btemp->transactions)
+            out << "TRANSACTION|" << t.pid << "|" << t.pname << "|" << t.quantity << "|" << t.totalAmount << "\n";
+
+        for(auto &c : btemp->complaints)
+            out << "COMPLAINT|" << c.username << "|" << c.message << "|" << c.resolved << "\n";
+
+
+        for(auto &p : btemp->preorders)
+            out << "PREORDER|" << p.username << "|" << p.productName << "|" << p.productId
+                << "|" << p.quantity << "|" << p.fulfilled << "\n";
+
+        btemp = btemp->next;
+    }
+
+    out.close();
+    cout << "Store saved successfully!\n";
+}
+
+void saveBST(bst* root, ofstream &out) {
+    if(!root) return;
+    saveBST(root->left, out);
+    out << "PRODUCT|" << root->data.id << "|" << root->data.name << "|"
+        << root->data.price << "|" << root->data.stock << "\n";
+    saveBST(root->right, out);
+}
+
+
+
+
+void loadFromFile(const string &filename) {
+    ifstream in(filename);
+    if(!in) { cout << "No previous data found.\n"; return; }
+
+    branch* currentBranch = nullptr;
+    category* currentCategory = nullptr;
+
+    string line;
+    while(getline(in, line)) {
+        stringstream ss(line);
+        string type;
+        getline(ss, type, '|');
+
+        if(type == "BRANCH") {
+            string bname;
+            getline(ss, bname);
+            addbranch(bname);
+            currentBranch = findbranch(bname);
+        } else if(type == "CATEGORY") {
+            string cname;
+            getline(ss, cname);
+            if(currentBranch) addcatbran(currentBranch->bname, cname);
+            currentCategory = currentBranch ? currentBranch->cahead : nullptr;
+            while(currentCategory && currentCategory->next) currentCategory = currentCategory->next; // last category
+        } else if(type == "PRODUCT") {
+            int id; string name; float price; int stock;
+            string temp;
+            getline(ss, temp, '|'); id = stoi(temp);
+            getline(ss, name, '|');
+            getline(ss, temp, '|'); price = stof(temp);
+            getline(ss, temp, '|'); stock = stoi(temp);
+            if(currentCategory) {
+                Product p(id,name,price,stock);
+                if(!currentCategory->root) currentCategory->root = new bst(p);
+                else currentCategory->root->insertProduct(currentCategory->root, p);
+            }
+        } else if(type == "TRANSACTION") {
+            int pid, qty; float amt;
+            string pname, temp;
+            getline(ss, temp, '|'); pid=stoi(temp);
+            getline(ss, pname, '|');
+            getline(ss, temp, '|'); qty=stoi(temp);
+            getline(ss, temp, '|'); amt=stof(temp);
+            if(currentBranch) currentBranch->transactions.push_back({pid,pname,qty,amt});
+        } else if(type == "COMPLAINT") {
+            string uname, msg, resolvedStr;
+            getline(ss, uname, '|');
+            getline(ss, msg, '|');
+            getline(ss, resolvedStr, '|');
+            bool resolved = (resolvedStr == "1");
+            if(currentBranch) currentBranch->complaints.push_back({uname,msg,resolved});
+        } else if(type == "PREORDER") {
+            string uname, pname, temp1, temp2, temp3;
+            int pid, qty; bool fulfilled;
+            getline(ss, uname, '|');
+            getline(ss, pname, '|');
+            getline(ss, temp1, '|'); pid=stoi(temp1);
+            getline(ss, temp2, '|'); qty=stoi(temp2);
+            getline(ss, temp3, '|'); fulfilled = (temp3=="1");
+            if(currentBranch) currentBranch->preorders.push_back({uname,pname,qty,fulfilled,pid});
+        }
+    }
+
+    in.close();
+    cout << "Store loaded successfully!\n";
+}
+
+
+
+
+
+
+
+};
+struct Admin{
+    string email;
+    string password;
+};
+
+void saveAdmin(Admin a){
+    ofstream file("admin.txt");
+    if(file.is_open()){
+        file << a.email << endl;
+        file << a.password << endl;
+        file.close();
+    }
+}
+
+bool loadAdmin(Admin &a){
+    ifstream file("admin.txt");
+    if(file.is_open()){
+        getline(file, a.email);
+        getline(file, a.password);
+        file.close();
+        return true;
+    }
+    return false;
+}
+
+bool adminLogin(){
+    Admin stored;
+    if(!loadAdmin(stored)){
+        cout << "No admin found. Register first.\n";
+        cout << "Set admin email: ";
+        cin >> stored.email;
+        cout << "Set admin password: ";
+        cin >> stored.password;
+        saveAdmin(stored);
+        cout << "Admin registered successfully!\n";
+        return true;
+    }
+    string email, pass;
+    cout << "\n===== ADMIN LOGIN =====\n";
+    cout << "Enter Email: ";
+    cin >> email;
+    cout << "Enter Password: ";
+    cin >> pass;
+    if(email == stored.email && pass == stored.password){
+        cout << "\nLogin Successful!\n";
+        return true;
+    }
+    cout << "Invalid Email or Password! Access Denied.\n";
+    return false;
+}
+void registerAdmin(){
+    Admin stored;
+    cout << "\n===== REGISTER NEW ADMIN =====\n";
+    cout << "Enter New Admin Email: ";
+    cin >> stored.email;
+    cout << "Enter New Admin Password: ";
+    cin >> stored.password;
+    saveAdmin(stored);
+    cout << "Admin registered successfully!\n";
+}
+int main() {
+    store s; 
+ s.loadFromFile("store_data.txt");
+     int mainChoice;
+    branch* b = nullptr;
+    string branchName, categoryName, username, pname, message;
+    int productId, quantity, complaintIndex,pid;
+    char more;
+
+    do {
+        cout << "\n===== MAIN MENU =====\n";
+        cout << "1. Admin Panel\n";
+        cout << "2. Customer Panel\n";
+        cout << "0. Exit\n";
+        cout << "Enter choice: ";
+        cin >> mainChoice; 
+        cin.ignore();
+
+        switch(mainChoice) 
+		{
+            case 1: {
+                
+                 if(adminLogin()) {
+                    int adminChoice;
+                    do {
+                        cout << "\n===== ADMIN PANEL =====\n";
+                        cout << "1. Add Branch\n";
+                        cout << "2. Search Branch\n";
+                        cout << "3. Update Branch\n";
+                        cout << "4. Delete Branch (with categories/products)\n";
+                        cout << "5. Add Category to Branch\n";
+                        cout << "6. Add Product to Category\n";
+                        cout << "7. Search Product\n";
+                        cout << "8. Update Product\n";
+                        cout << "9. Delete Product\n";
+                        cout << "10. Show Branch Transactions\n";
+                        cout << "11. Display Store Inventory\n";
+                        cout << "12. Show Low Stock Products\n";
+                        cout << "13. View Complaints\n";
+                        cout << "14. Resolve Complaint\n";
+                        cout << "15. Show Preorders\n";
+                        cout << "16. Fulfill Preorders\n";
+                        cout << "17. Register New Admin\n";
+                        cout << "0. Back to Main Menu\n";
+                        cout << "Enter choice: ";
+                        cin >> adminChoice; cin.ignore();
+
+                        switch(adminChoice) {
+                            case 1: {
+                                cout << "Enter Branch Name: ";
+                                getline(cin, branchName);
+                                s.addbranch(branchName);
+                                break;
+                            }
+                            case 2: {
+                                cout << "Enter Branch Name to Search: ";
+                                getline(cin, branchName);
+                                s.searchbranch(branchName);
+                                break;
+                            }
+                            case 3: {
+                                cout << "Enter Branch Name to Update: ";
+                                getline(cin, branchName);
+                                s.updatebranch(branchName);
+                                break;
+                            }
+                            case 4: {
+                                cout << "Enter Branch Name to Delete: ";
+                                getline(cin, branchName);
+                                s.delbranchwithcat(branchName);
+                                break;
+                            }
+                            case 5: {
+                                cout << "Enter Branch Name: ";
+                                getline(cin, branchName);
+                                cout << "Enter Category Name: ";
+                                getline(cin, categoryName);
+                                s.addcatbran(branchName, categoryName);
+                                break;
+                            }
+                            case 6: {
+                                cout << "Enter Branch Name: ";
+                                getline(cin, branchName);
+                                cout << "Enter Category Name: ";
+                                getline(cin, categoryName);
+                                s.addptoc(branchName, categoryName);
+                                break;
+                            }
+                            case 7: {
+                                cout << "Enter Branch Name: "; getline(cin, branchName);
+                                cout << "Enter Category Name: "; getline(cin, categoryName);
+                                cout << "Enter Product ID to Search: "; cin >> productId; cin.ignore();
+                                s.searchbcp(branchName, categoryName, productId);
+                                break;
+                            }
+                            case 8: {
+                                cout << "Enter Branch Name: "; getline(cin, branchName);
+                                cout << "Enter Category Name: "; getline(cin, categoryName);
+                                cout << "Enter Product ID to Update: "; cin >> productId; cin.ignore();
+                                branch* b = s.findbranch(branchName);
+                                if(b) {
+                                    category* c = b->cahead;
+                                    while(c) {
+                                        if(c->catname == categoryName){
+                                            c->root->updateProduct(c->root, productId);
+                                            break;
+                                        }
+                                        c = c->next;
+                                    }
+                                }
+                                break;
+                            }
+                            case 9: {
+                                cout << "Enter Branch Name: "; getline(cin, branchName);
+                                cout << "Enter Category Name: "; getline(cin, categoryName);
+                                cout << "Enter Product ID to Delete: "; cin >> productId; cin.ignore();
+                                branch* b = s.findbranch(branchName);
+                                if(b) {
+                                    category* c = b->cahead;
+                                    while(c) {
+                                        if(c->catname == categoryName){
+                                            c->root->deleteProduct(c->root, productId);
+                                            break;
+                                        }
+                                        c = c->next;
+                                    }
+                                }
+                                break;
+                            }
+                            case 10: {
+                                cout << "Enter Branch Name: "; getline(cin, branchName);
+                                s.showBranchTransactions(branchName);
+                                break;
+                            }
+                            case 11: s.displayStore(); break;
+                            case 12: s.showLowStock(); break;
+                            case 13: {
+                                cout << "Enter Branch Name: "; getline(cin, branchName);
+                                s.viewComplaints(branchName);
+                                break;
+                            }
+                            case 14: {
+                                cout << "Enter Branch Name: "; getline(cin, branchName);
+                                s.viewComplaints(branchName);
+                                cout << "Enter Complaint Number to Resolve: "; cin >> complaintIndex; cin.ignore();
+                                s.resolveComplaint(branchName, complaintIndex);
+                                break;
+                            }
+                            case 15: {
+                                cout << "Enter Branch Name: "; getline(cin, branchName);
+                                s.showPreorders(branchName);
+                                break;
+                            }
+                            case 16: {
+                                cout << "Enter Branch Name: "; getline(cin, branchName);
+                                branch* b = s.findbranch(branchName);
+                                if(b) s.fulfillPreorders(b);
+                                break;
+                            }
+                             case 17: registerAdmin(); break;
+                            case 0: break;
+                            default: cout << "Invalid choice!\n";
+                        }
+
+                    } while(adminChoice != 0);
+
+                } else {
+                    cout << "Invalid Email or Password! Access Denied.\n";
+                }
+                break;
+            }
+
+            case 2: {
+                int custChoice;
+                do {
+                    cout << "\n===== CUSTOMER PANEL =====\n";
+                    cout << "1. Browse Products\n";
+                    cout << "2. Purchase Product\n";
+                    cout << "3. View Cart\n";
+                    cout << "4. Checkout\n";
+                    cout << "5. Submit Complaint\n";
+                    cout << "6. Add Preorder\n";
+                    cout << "0. Back to Main Menu\n";
+                    cout << "Enter choice: ";
+                    cin >> custChoice; cin.ignore();
+
+                    switch(custChoice) {
+                        case 1:
+                            s.displayStore();
+                            break;
+                        case 2:
+                            cout << "Enter User Name: ";
+                            getline(cin, username);
+                            do {
+                                cout << "Enter Branch Name: ";
+                                getline(cin, branchName);
+                                cout << "Enter Category Name: ";
+                                getline(cin, categoryName);
+                                cout << "Enter Product ID: ";
+                                cin >> productId;
+                                cout << "Enter Quantity: ";
+                                cin >> quantity; cin.ignore();
+
+                                s.addtocart(branchName, username, categoryName, productId, quantity);
+
+                                cout << "Do you want to add more products? (y/n): ";
+                                cin >> more; cin.ignore();
+                            } while(more == 'y' || more == 'Y');
+                            break;
+                        case 3:
+                            cout << "Enter Branch Name: "; getline(cin, branchName);
+                            cout << "Enter User Name: "; getline(cin, username);
+                            b = s.findbranch(branchName);
+                            if(b) s.viewstock(b, username);
+                            break;
+                        case 4:
+                            cout << "Enter Branch Name: "; getline(cin, branchName);
+                            cout << "Enter User Name: "; getline(cin, username);
+                            s.checkout(s, branchName, username);
+                            break;
+                        case 5:
+                            cout << "Enter Branch Name: "; getline(cin, branchName);
+                            cout << "Enter Your Name: "; getline(cin, username);
+                            cout << "Enter Complaint Message: "; getline(cin, message);
+                            s.submitComplaint(branchName, username, message);
+                            break;
+                        case 6:
+                            cout << "Enter Branch Name: "; getline(cin, branchName);
+                            cout << "Enter Your Name: "; getline(cin, username);
+                            cout << "Enter Product Name to Preorder: "; getline(cin, pname);
+                             cout << "Enter Product ID to Preorder: ";cin>>pid;
+                            cout << "Enter Quantity: "; cin >> quantity; cin.ignore();
+                            s.addPreorder(branchName, username, pname, quantity,pid);
+                            break;
+                        case 0: break;
+                        default: cout << "Invalid choice!\n";
+                    }
+
+                } while(custChoice != 0);
+                break;
+            }
+
+            case 0:
+                cout << "Exiting program. Goodbye!\n";
+                break;
+            default:
+                cout << "Invalid choice! Try again.\n";
+        }
+
+    } while(mainChoice != 0);
+    s.saveToFile("store_data.txt");
+
+    cout << "System loaded and saved successfully!" << endl;    
+
+    return 0;
+}
